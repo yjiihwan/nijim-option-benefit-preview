@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>니짐내짐 옵션선택 B안 프로토타입</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="demo" id="demo">
+  <div class="demo-h">프로토타입 조작 <span>(실제 앱 화면 아님)</span></div>
+  <div class="seg" id="seg-n">
+    <button data-n="2">옵션 2개</button>
+    <button data-n="5">옵션 5개</button>
+    <button data-n="10">옵션 10개</button>
+  </div>
+  <div class="seg sm" id="seg-sel">
+    <button data-sel="preset">예시 선택</button>
+    <button data-sel="none">모두 해제</button>
+    <button data-sel="all6">전부 6개월</button>
+  </div>
+</div>
+<div class="phone" id="app"></div>
+<script src="app.js"></script>
+</body>
+</html>
