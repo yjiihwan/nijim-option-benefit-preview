@@ -1,6 +1,6 @@
 'use strict';
 // 금액·문구는 시안 v2(_src/build.py)와 같은 식으로 계산한다. 숫자 데이터는 시안용 예시(캡처 실제값/추론값은 README_SPEC 4번).
-const MEM = { name: '헬스', period: '2026-10-22 ~ 2027-04-21', base: 445000 };
+const MEM = { name: '헬스', period: '2026-10-22 ~ 2027-04-21', base: 445000, months: 6 };
 const EVENT = { name: '연말 D-100 챌린지 이벤트', amount: 89000 };
 const COUPON = { count: 2, max: 20000 };
 const RATE = 0.012;
@@ -23,6 +23,13 @@ const PRESET = { // 옵션 순번(0부터): 개월
   2: { 1: 6 },
   5: { 1: 6, 3: 3 },
   10: { 1: 6, 3: 3, 9: 6 },
+};
+// 센터 설정 «회원권 기간과 동일만 가능»을 켠 옵션(조작판 «기간 고정 있음»일 때). 기간은 회원권 기간(MEM.months)으로 정해진다
+const FIXED = [0, 1, 4, 9];
+const PRESET_FIX = {
+  2: { 0: 6, 1: 6 },
+  5: { 0: 6, 1: 6, 3: 3 },
+  10: { 0: 6, 1: 6, 3: 3, 9: 6 },
 };
 
 const won = (n) => n.toLocaleString('ko-KR');
@@ -52,6 +59,10 @@ const all6 = (n) => Object.fromEntries(OPTIONS.slice(0, n).map((_, i) => [i, 6])
     && t10.opt === 218000 && t10.gross === 663000 && t10.pay === 574000 && t10.pctTotal === 13 && t10.earn === 6888
     && ta.opt === 3350000 && ta.gross === 3795000 && ta.pay === 3706000 && ta.pctTotal === 2 && ta.earn === 44472
     && pctTag(ta.pctTotal) === '' && pctTag(t2.pctTotal) === ' · 18%↓' && pctTag(5) === ' · 5%↓' && pctTag(4) === ''
+    && calc(2, PRESET_FIX[2]).pay === 466000 && calc(2, PRESET_FIX[2]).pctTotal === 16 && calc(2, PRESET_FIX[2]).earn === 5592
+    && calc(5, PRESET_FIX[5]).pay === 546000 && calc(5, PRESET_FIX[5]).pctTotal === 14 && calc(5, PRESET_FIX[5]).earn === 6552
+    && calc(10, PRESET_FIX[10]).pay === 624000 && calc(10, PRESET_FIX[10]).pctTotal === 12 && calc(10, PRESET_FIX[10]).earn === 7488
+    && FIXED.every((i) => OPTIONS[i][1][MEM.months] !== undefined)
     && calc(2, {}).pctMem === 20 && OPTIONS.slice(0, 2).every(([, p]) => Math.max(...Object.values(p)) < 100000);
   if (!ok) throw new Error('금액 검산 불일치');
   window.__selfCheck = 'ok';
@@ -62,6 +73,9 @@ const IC = {
   coupon: '<svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="#E8F1FC"/><path d="M5 7h10v2a1.2 1.2 0 0 0 0 2.4V13H5v-1.6a1.2 1.2 0 0 0 0-2.4z" fill="none" stroke="#1A73D9" stroke-width="1.4" stroke-linejoin="round"/><path d="M11 7.5v5" stroke="#1A73D9" stroke-width="1.2" stroke-dasharray="1.2 1.2"/></svg>',
   pearn: '<svg viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="10" fill="#00A870"/><text x="9" y="13.6" text-anchor="middle" font-family="Pretendard" font-weight="800" font-size="10" fill="#fff">P</text><path d="M14.2 4.6v3.6M12.4 6.4H16" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg>',
   check: '<svg width="12" height="12" viewBox="0 0 12 12"><path d="M2.2 6.2l2.4 2.4L9.8 3.4" fill="none" stroke="#FE2167" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  lock: '<svg width="12" height="12" viewBox="0 0 12 12"><rect x="2" y="5.2" width="8" height="5.6" rx="1.2" fill="#8A8A8A"/><path d="M3.9 5.2V3.9a2.1 2.1 0 0 1 4.2 0v1.3" fill="none" stroke="#8A8A8A" stroke-width="1.3"/></svg>',
+  box: '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="1" y="1" width="20" height="20" rx="5" fill="#fff" stroke="#C9C9CF" stroke-width="1.5"/></svg>',
+  boxOn: '<svg width="22" height="22" viewBox="0 0 22 22"><rect x="0.5" y="0.5" width="21" height="21" rx="5.5" fill="#FE2167"/><path d="M6 11.2l3.3 3.3L16.2 7.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   back: '<svg width="14" height="22"><path d="M11 2 2 11l9 9" fill="none" stroke="#3B4256" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 };
 const STATUS = '<div class="sb"><span>4:35</span><span class="r"><svg width="22" height="14"><rect x="0" y="9" width="4" height="5" rx="1"/><rect x="6" y="6" width="4" height="8" rx="1"/><rect x="12" y="3" width="4" height="11" rx="1"/><rect x="18" y="0" width="4" height="14" rx="1"/></svg>LTE<svg width="28" height="14"><rect x="0.5" y="0.5" width="24" height="13" rx="4" fill="none" stroke="#999"/><rect x="2" y="2" width="12" height="10" rx="2.5"/><rect x="25.5" y="4.5" width="2" height="5" rx="1" fill="#999"/></svg></span></div>';
@@ -73,7 +87,17 @@ function secInner(s) {
   return `<span class="t">기타옵션 ${s.n}</span>${cnt}${sum}`;
 }
 
-function optionHtml([name, prices], i, s) {
+function fixedHtml([name, prices], i, s) {
+  const on = s.sel[i] === MEM.months, m = MEM.months, p = prices[m];
+  const right = on ? `${m}개월 · <b>+${won(p)}원</b>` : '선택 안 함';
+  return `<div class="ob fx${on ? ' in' : ''}"><div class="oh"><button class="ck" data-fix="${i}" role="checkbox" aria-checked="${on}" aria-label="${name} 넣기">${on ? IC.boxOn : IC.box}<span class="n">${name}</span></button><span class="r">${right}</span></div>`
+    + `<div class="fxp"><span class="l">${m}개월 · 회원권과 동일</span><span class="w">${won(p)}원</span></div>`
+    + `<div class="fxn">${IC.lock}회원권 기간과 같은 기간만 선택할 수 있어요</div></div>`;
+}
+
+function optionHtml(o, i, s) {
+  if (s.fixed.includes(i)) return fixedHtml(o, i, s);
+  const [name, prices] = o;
   const sel = s.sel[i];
   const right = sel ? `${sel}개월 · <b>+${won(prices[sel])}원</b>` : '선택 안 함';
   const two = Math.max(...Object.values(prices)) >= 100000 ? ' two' : '';
@@ -93,7 +117,7 @@ function view(s) {
     <div class="evrow">${IC.event}<div class="t"><span class="c">이벤트 할인</span><div class="s">${EVENT.name}</div></div><span class="chip">${won(s.event)}원 할인${pctTag(s.pctMem)}</span></div>
     <div class="row"><span class="k">이용기간</span><span class="v">${MEM.period}</span></div>
     <div class="cprow">${IC.coupon}<div class="t"><span class="c">쓸 수 있는 쿠폰 ${COUPON.count}장</span> · 최대 <b>${won(COUPON.max)}원</b> 더 할인<div class="s">다음 결제 단계에서 골라 쓸 수 있어요</div></div></div>
-    <div class="sec2">${secInner(s)}</div><div class="hint">기간을 눌러 바로 선택 · 한 번 더 누르면 해제돼요</div>
+    <div class="sec2">${secInner(s)}</div><div class="hint">${s.fixed.length === s.n ? '체크해서 옵션을 넣거나 뺄 수 있어요' : '기간을 눌러 바로 선택 · 한 번 더 누르면 해제돼요'}</div>
     <div class="olist">${OPTIONS.slice(0, s.n).map((o, i) => optionHtml(o, i, s)).join('')}</div>
     <div class="pad"></div>
   </div></div>
@@ -107,13 +131,14 @@ function view(s) {
 const qs = new URLSearchParams(location.search);
 if (qs.get('shot') === '1') document.body.classList.add('shot');
 const N0 = [2, 5, 10].includes(Number(qs.get('n'))) ? Number(qs.get('n')) : 10;
-function selFor(n, kind) {
+function selFor(n, kind, fix) {
   if (kind === 'none') return {};
   if (kind === 'all6') return all6(n);
-  return { ...PRESET[n] };
+  return { ...(fix ? PRESET_FIX : PRESET)[n] };
 }
-const state = { n: N0, kind: qs.get('sel') || 'preset' };
-state.sel = selFor(state.n, state.kind);
+const fixedFor = (st) => (st.fix ? FIXED.filter((i) => i < st.n) : []);
+const state = { n: N0, kind: qs.get('sel') || 'preset', fix: qs.get('fix') === '1' };
+state.sel = selFor(state.n, state.kind, state.fix);
 const app = document.getElementById('app');
 
 function updateSticky() {
@@ -123,25 +148,40 @@ function updateSticky() {
 }
 
 function render() {
-  app.innerHTML = view(calc(state.n, state.sel));
+  app.innerHTML = view({ ...calc(state.n, state.sel), fixed: fixedFor(state) });
   document.querySelectorAll('#seg-n button').forEach((b) => b.classList.toggle('on', Number(b.dataset.n) === state.n));
   document.querySelectorAll('#seg-sel button').forEach((b) => b.classList.toggle('on', b.dataset.sel === state.kind));
+  document.querySelectorAll('#seg-fix button').forEach((b) => b.classList.toggle('on', (b.dataset.fix === '1') === state.fix));
   updateSticky();
 }
 
 document.getElementById('seg-n').addEventListener('click', (e) => {
   const n = Number(e.target.closest('button')?.dataset.n);
   if (!n) return;
-  state.n = n; state.kind = 'preset'; state.sel = selFor(n, 'preset');
+  state.n = n; state.kind = 'preset'; state.sel = selFor(n, 'preset', state.fix);
   render(); window.scrollTo(0, 0);
 });
 document.getElementById('seg-sel').addEventListener('click', (e) => {
   const k = e.target.closest('button')?.dataset.sel;
   if (!k) return;
-  state.kind = k; state.sel = selFor(state.n, k);
+  state.kind = k; state.sel = selFor(state.n, k, state.fix);
+  render();
+});
+document.getElementById('seg-fix').addEventListener('click', (e) => {
+  const f = e.target.closest('button')?.dataset.fix;
+  if (f === undefined) return;
+  state.fix = f === '1'; state.kind = 'preset'; state.sel = selFor(state.n, 'preset', state.fix);
   render();
 });
 app.addEventListener('click', (e) => {
+  const ck = e.target.closest('.ck');
+  if (ck) { // 기간 고정 옵션은 넣기/빼기만. 기간은 회원권 기간 그대로
+    const i = Number(ck.dataset.fix);
+    if (state.sel[i] === MEM.months) delete state.sel[i]; else state.sel[i] = MEM.months;
+    state.kind = 'custom';
+    render();
+    return;
+  }
   const cb = e.target.closest('.cb');
   if (cb) {
     const i = Number(cb.dataset.i), m = Number(cb.dataset.m);
