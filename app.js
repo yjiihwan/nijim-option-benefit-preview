@@ -24,7 +24,7 @@ const PRESET = { // 옵션 순번(0부터): 개월
   5: { 1: 6, 3: 3 },
   10: { 1: 6, 3: 3, 9: 6 },
 };
-// 센터 설정 «회원권 기간과 동일만 가능»을 켠 옵션(조작판 «기간 고정 있음»일 때). 기간은 회원권 기간(MEM.months)으로 정해진다
+// 센터 설정 «멤버십 기간과 동일만 가능»을 켠 옵션(조작판 «기간 고정 있음»일 때). 기간은 멤버십 기간(MEM.months)으로 정해진다
 const FIXED = [0, 1, 4, 9];
 const PRESET_FIX = {
   2: { 0: 6, 1: 6 },
@@ -91,8 +91,8 @@ function fixedHtml([name, prices], i, s) {
   const on = s.sel[i] === MEM.months, m = MEM.months, p = prices[m];
   const right = on ? `${m}개월 · <b>+${won(p)}원</b>` : '선택 안 함';
   return `<div class="ob fx${on ? ' in' : ''}"><div class="oh"><button class="ck" data-fix="${i}" role="checkbox" aria-checked="${on}" aria-label="${name} 넣기">${on ? IC.boxOn : IC.box}<span class="n">${name}</span></button><span class="r">${right}</span></div>`
-    + `<div class="fxp"><span class="l">${m}개월 · 회원권과 동일</span><span class="w">${won(p)}원</span></div>`
-    + `<div class="fxn">${IC.lock}회원권 기간과 같은 기간만 선택할 수 있어요</div></div>`;
+    + `<div class="fxp"><span class="l">${m}개월 · 멤버십과 동일</span><span class="w">${won(p)}원</span></div>`
+    + `<div class="fxn">${IC.lock}멤버십 기간과 같은 기간만 선택할 수 있어요</div></div>`;
 }
 
 function optionHtml(o, i, s) {
@@ -175,7 +175,7 @@ document.getElementById('seg-fix').addEventListener('click', (e) => {
 });
 app.addEventListener('click', (e) => {
   const ck = e.target.closest('.ck');
-  if (ck) { // 기간 고정 옵션은 넣기/빼기만. 기간은 회원권 기간 그대로
+  if (ck) { // 기간 고정 옵션은 넣기/빼기만. 기간은 멤버십 기간 그대로
     const i = Number(ck.dataset.fix);
     if (state.sel[i] === MEM.months) delete state.sel[i]; else state.sel[i] = MEM.months;
     state.kind = 'custom';
